@@ -122,13 +122,12 @@ using the [MADR](https://adr.github.io/madr/) format. The process is described i
 
 ## Working with AI agents
 
-Much of the code in this project is written with the help of AI coding agents. To keep the project
+Much of the code in this project is written with the help of AI coding agents ([ADR-0003](docs/adr/0003-engineering-workflow-and-quality-gates.md)). To keep the project
 trustworthy:
 
-- Every change goes through a pull request and is reviewed by a human before merging.
-- Agents work from issues and ADRs; if a decision isn't recorded, it is raised as an issue rather than
-  made silently in code.
-- Changes must be covered by automated tests and pass CI.
+- Every change goes through a short-lived branch and pull request (`main` is protected, squash-merged, and uses [Conventional Commits](https://www.conventionalcommits.org/)) and is reviewed by a human before merging.
+- Agents follow explicit repository instructions (`AGENTS.md`) and work from issues and ADRs; if a decision isn't recorded, it is raised as an issue rather than made silently in code.
+- Changes must be covered by automated tests (unit, integration, architecture and E2E) and pass CI quality and security gates.
 - Pull requests should be small and focused enough to review in one sitting.
 
 ## Contributing
