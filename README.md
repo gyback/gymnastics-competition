@@ -89,19 +89,24 @@ Final choices are made through ADRs, but the starting preference is:
 
 ## Repository layout
 
-This repository is the **public, open-source application**. Deployment infrastructure for the hosted
-service (Infrastructure as Code, environment configuration, secrets references) lives in a separate
-**private** repository. Nothing in this repository should depend on that private repository — anyone
-should be able to build, test and run the application locally from here alone.
+This repository is the **public, open-source application** monorepo ([ADR-0002](docs/adr/0002-repository-strategy.md)).
+Deployment infrastructure for the hosted service (Infrastructure as Code, environment configuration,
+secrets references) lives in a separate **private** repository, which deploys versioned container images
+published from this repository. Nothing here depends on that private repository — anyone can build, test
+and run the application locally from this repository alone.
 
 ```text
-docs/
-  adr/            Architecture Decision Records
 .github/
-  ISSUE_TEMPLATE/ Issue forms (including ADR proposals)
+  ISSUE_TEMPLATE/         Issue forms (including ADR proposals)
+  workflows/              CI and release workflows (planned)
+build/                    Shared build / container helpers (planned)
+docs/
+  adr/                    Architecture Decision Records (MADR)
+src/                      Production source code: .NET backend modules + Web frontend (planned)
+tests/                    Unit, integration, architecture and E2E test projects (planned)
 ```
 
-The rest of the layout (`src/`, `tests/`, …) will be defined by an ADR.
+Concrete `.NET` and frontend projects inside `src/` and `tests/` are defined by the backend and frontend ADRs.
 
 ## Architecture decisions
 
