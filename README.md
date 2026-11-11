@@ -84,6 +84,7 @@ Final choices are made through ADRs, but the starting preference is:
 
 - **Backend:** .NET 10 (ASP.NET Core Minimal APIs, modular monolith with vertical slices — [ADR-0004](docs/adr/0004-backend-runtime-and-architectural-style.md))
 - **Frontend:** React 19 SPA with Vite, TypeScript, Tailwind CSS & `shadcn/ui`, served by the ASP.NET Core BFF with an OpenAPI 3.1 generated client ([ADR-0005](docs/adr/0005-frontend-framework-and-api-contract.md))
+- **Data store:** PostgreSQL 17 (Azure Database for PostgreSQL Flexible Server) with EF Core 10 (`Npgsql`) and per-module schemas ([ADR-0007](docs/adr/0007-primary-data-store-and-data-access.md))
 - **Hosting:** Microsoft Azure
 - **Source control, issues and CI/CD:** GitHub (Issues, Pull Requests, Actions)
 
