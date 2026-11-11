@@ -82,7 +82,7 @@ The glossary will evolve into the project's ubiquitous language and should be ke
 
 Final choices are made through ADRs, but the starting preference is:
 
-- **Backend:** .NET (ASP.NET Core)
+- **Backend:** .NET 10 (ASP.NET Core Minimal APIs, modular monolith with vertical slices — [ADR-0004](docs/adr/0004-backend-runtime-and-architectural-style.md))
 - **Frontend:** React, possibly via Next.js
 - **Hosting:** Microsoft Azure
 - **Source control, issues and CI/CD:** GitHub (Issues, Pull Requests, Actions)
@@ -102,11 +102,11 @@ and run the application locally from this repository alone.
 build/                    Shared build / container helpers (planned)
 docs/
   adr/                    Architecture Decision Records (MADR)
-src/                      Production source code: .NET backend modules + Web frontend (planned)
+src/                      Production source code: .NET 10 backend modules + Web frontend (planned)
 tests/                    Unit, integration, architecture and E2E test projects (planned)
 ```
 
-Concrete `.NET` and frontend projects inside `src/` and `tests/` are defined by the backend and frontend ADRs.
+Concrete `.NET` backend modules (`Users`, `Organisations`, `Competitions`, `Applications`, `Scheduling`), local `.NET Aspire` orchestration, and test projects are defined in [ADR-0004](docs/adr/0004-backend-runtime-and-architectural-style.md); frontend projects inside `src/Web/` will be defined by the frontend ADR.
 
 ## Architecture decisions
 
