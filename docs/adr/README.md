@@ -15,5 +15,6 @@ to `NNNN-title-with-dashes.md` in a pull request.
 | [0005](0005-frontend-framework-and-api-contract.md) | Frontend framework and API contract — React 19 SPA with Vite, ASP.NET Core BFF and OpenAPI TypeScript client | Accepted |
 | [0006](0006-tenancy-and-organisation-model.md) | Tenancy and organisation model — shared database with explicit organisation ownership, hierarchy-ready organisations and configurable rule sets | Accepted |
 | [0007](0007-primary-data-store-and-data-access.md) | Primary data store and data access — PostgreSQL with EF Core 10, per-module schemas, migration bundles and GDPR retention policies | Accepted |
+| [0008](0008-identity-authentication-and-authorisation.md) | Identity, authentication and authorisation — Microsoft Entra External ID via OIDC, cookie-based ASP.NET Core BFF and resource-scoped permission policies | Accepted |
 
 Open decisions are tracked as [issues labelled `adr`](https://github.com/gyback/teamgym-arena/issues?q=is%3Aissue+label%3Aadr).
