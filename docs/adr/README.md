@@ -14,5 +14,6 @@ to `NNNN-title-with-dashes.md` in a pull request.
 | [0004](0004-backend-runtime-and-architectural-style.md) | Backend runtime and architectural style — .NET 10 modular monolith with vertical slices | Accepted |
 | [0005](0005-frontend-framework-and-api-contract.md) | Frontend framework and API contract — React 19 SPA with Vite, ASP.NET Core BFF and OpenAPI TypeScript client | Accepted |
 | [0006](0006-tenancy-and-organisation-model.md) | Tenancy and organisation model — shared database with explicit organisation ownership, hierarchy-ready organisations and configurable rule sets | Accepted |
+| [0007](0007-primary-data-store-and-data-access.md) | Primary data store and data access — PostgreSQL with EF Core 10, per-module schemas, migration bundles and GDPR retention policies | Accepted |
 
 Open decisions are tracked as [issues labelled `adr`](https://github.com/gyback/gymnastics-competition/issues?q=is%3Aissue+label%3Aadr).
