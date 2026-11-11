@@ -69,8 +69,8 @@ Terminology follows **[TeamGym as defined by European Gymnastics](https://www.eu
 | **TeamGym** | A team gymnastics competition defined by European Gymnastics, performed in three disciplines: **Floor**, **Tumble** and **Trampet** (also known nationally as e.g. *truppgymnastik* in Sweden). |
 | **Discipline** | One of the three TeamGym disciplines: **Floor**, **Tumble** or **Trampet**. |
 | **Section** | Team division by gender composition: **Women**, **Men**, **Mixed** or **Open** (a **Mixed** team consists of 50% male and 50% female gymnasts, while **Open** allows any gender composition, common in national rules). |
-| **Organisation** | A federation, region or club. Clubs own teams. |
-| **Team** | The competing unit — a group of gymnasts from a club entered in a section and class. Under European Gymnastics rules, a team consists of 8–10 gymnasts, all of whom compete on **Floor**, while 6 gymnasts perform in each round on **Tumble** and **Trampet**. |
+| **Organisation** | A federation, region or club ([ADR-0006](docs/adr/0006-tenancy-and-organisation-model.md)). Clubs own teams; clubs, regions and federations can host competitions. |
+| **Team** | The competing unit — a group of gymnasts from a club entered in a section and class. Under European Gymnastics rules, a team consists of 8–10 gymnasts, all of whom compete on **Floor**, while 6 gymnasts perform in each round on **Tumble** and **Trampet** (configurable per competition via `RuleSet` presets — [ADR-0006](docs/adr/0006-tenancy-and-organisation-model.md)). |
 | **Class** | A competition category, typically combining section (**Women**, **Men**, **Mixed**, **Open**), age group (e.g. Junior, Senior) and/or national level. |
 | **Competition** | An event hosted by an organiser, with one or more sections and classes. |
 | **Application** | A club's request to enter a team into a competition section/class. |
