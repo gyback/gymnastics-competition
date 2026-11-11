@@ -57,7 +57,7 @@ To support the `.NET 10` modular monolith ([ADR-0004](0004-backend-runtime-and-a
 ### 4. Schema Migration Strategy
 
 - **Option S1:** **EF Core migrations applied via a dedicated migration runner (`src/MigrationService`) in `.NET Aspire` locally, verified in CI against `Testcontainers`, and executed in staging/production via a self-contained EF Core migration bundle (`efbundle`) before deploying the new app revision.**
-- **Option S2:** **Apply `dbContext.Database.MigrateAsync()` automatically inside `GymnasticsCompetition.Api` (`Program.cs`) on application startup in all environments.**
+- **Option S2:** **Apply `dbContext.Database.MigrateAsync()` automatically inside `TeamGym.Arena.Api` (`Program.cs`) on application startup in all environments.**
 - **Option S3:** **Generate raw SQL diff scripts manually and apply them out-of-band by a human administrator before releases.**
 
 ## Decision Outcome
@@ -82,7 +82,7 @@ Chosen options:
 
 ### 2. Per-Module Schema Isolation in a Single Shared Database
 
-In accordance with our modular monolith architecture ([ADR-0004](0004-backend-runtime-and-architectural-style.md)) and shared-database tenancy model ([ADR-0006](0006-tenancy-and-organisation-model.md)), all modules connect to the **same physical PostgreSQL database** (`gymnastics_competition`), but each module owns an **isolated PostgreSQL schema and its own `DbContext`**:
+In accordance with our modular monolith architecture ([ADR-0004](0004-backend-runtime-and-architectural-style.md)) and shared-database tenancy model ([ADR-0006](0006-tenancy-and-organisation-model.md)), all modules connect to the **same physical PostgreSQL database** (`teamgym_arena`), but each module owns an **isolated PostgreSQL schema and its own `DbContext`**:
 
 | Module | `DbContext` (internal to module) | PostgreSQL Schema | Migration History Table | Key Tables Owned |
 | --- | --- | --- | --- | --- |
@@ -100,12 +100,12 @@ In accordance with our modular monolith architecture ([ADR-0004](0004-backend-ru
 ### 3. EF Core 10 Data Access Conventions
 
 - **Persistence-ignorant `Domain/` model:**
-  - Entities, aggregates, and value objects in `GymnasticsCompetition.Modules.<Module>.Domain` contain pure C# business logic and have **zero dependencies on `Microsoft.EntityFrameworkCore`** ([ADR-0004](0004-backend-runtime-and-architectural-style.md)).
+  - Entities, aggregates, and value objects in `TeamGym.Arena.Modules.<Module>.Domain` contain pure C# business logic and have **zero dependencies on `Microsoft.EntityFrameworkCore`** ([ADR-0004](0004-backend-runtime-and-architectural-style.md)).
   - All table, column, key, value-converter, and index mappings live in `Persistence/Configurations/*Configuration.cs` implementing `IEntityTypeConfiguration<T>`.
 - **Write path (Command slices) vs Read path (Query slices):**
   - **Command handlers** load the aggregate root through the module's `DbContext`, invoke domain methods (e.g. `schedule.AssignRotationSlot(...)` or `team.AddGymnast(...)`), and call `SaveChangesAsync(cancellationToken)`. Domain events raised by aggregates are dispatched via a shared EF Core `SaveChangesInterceptor`.
   - **Query handlers** set `.AsNoTracking()` (configured by default on read queries) and project directly into response DTO records using LINQ `.Select(...)` against the module's `DbContext`. No generic `IRepository<T>` wrapper is used.
-- **Standard database mapping conventions (shared via `GymnasticsCompetition.Common` persistence helpers):**
+- **Standard database mapping conventions (shared via `TeamGym.Arena.Common` persistence helpers):**
   - **Naming:** `UseSnakeCaseNamingConvention()` (`EFCore.NamingConventions`) maps PascalCase C# types and properties to idiomatic PostgreSQL `snake_case` tables, columns, primary keys, foreign keys, and indexes.
   - **Primary keys:** Strongly-typed `readonly record struct` IDs (`OrganisationId`, `TeamId`, `GymnastId`, `CompetitionId`, `CompetitionApplicationId`, `CompetitionScheduleId`) backed by **`UUIDv7` (`Guid.CreateVersion7()`)** and stored as native PostgreSQL `uuid`. `UUIDv7` is time-ordered, giving sequential B-tree index locality comparable to `bigint` without central sequence coordination.
   - **Timestamps:** All timestamps use `DateTimeOffset` normalized to UTC and mapped to PostgreSQL `timestamp with time zone` (`timestamptz`), obtained via `.NET`'s `TimeProvider` abstraction for deterministic testing.
@@ -115,18 +115,18 @@ In accordance with our modular monolith architecture ([ADR-0004](0004-backend-ru
 ### 4. Schema Migration Lifecycle
 
 - **Authoring migrations per module:**
-  - Each module's migrations live in `src/Modules/<Module>/GymnasticsCompetition.Modules.<Module>/Persistence/Migrations/`.
+  - Each module's migrations live in `src/Modules/<Module>/TeamGym.Arena.Modules.<Module>/Persistence/Migrations/`.
   - Each module registers `.MigrationsHistoryTable("__EFMigrationsHistory", "<module_schema>")` so modules can evolve their schemas independently without colliding in a shared migration table.
 - **Local development (`.NET Aspire` + `src/MigrationService`):**
   - A lightweight worker project `src/MigrationService` references the module persistence registrations and runs `MigrateAsync()` sequentially across each module's `DbContext` on startup, then exits cleanly (`WaitForCompletion` in `src/AppHost`).
-  - Running `dotnet run --project src/AppHost` starts the PostgreSQL container, runs `MigrationService` to apply all module migrations (and optional development seed data such as default European Gymnastics and Swedish TeamGym `RuleSet` presets), and only then starts `GymnasticsCompetition.Api`.
+  - Running `dotnet run --project src/AppHost` starts the PostgreSQL container, runs `MigrationService` to apply all module migrations (and optional development seed data such as default European Gymnastics and Swedish TeamGym `RuleSet` presets), and only then starts `TeamGym.Arena.Api`.
 - **Continuous Integration (`Testcontainers.PostgreSql` + `Respawn`):**
   - In `tests/Api.IntegrationTests` ([ADR-0003](0003-engineering-workflow-and-quality-gates.md)), a shared xUnit fixture boots a real `postgres:17-alpine` container via `Testcontainers.PostgreSql`, applies all module EF Core migrations from an empty database, and uses `Respawn` to reset table data between tests in milliseconds.
   - CI also verifies that no pending model changes exist (`HasPendingModelChanges()`) so a developer or AI agent cannot modify an entity configuration without generating the matching migration.
 - **Staging and Production (EF Core Migration Bundles in CI/CD):**
-  - We **never** run `Database.MigrateAsync()` inside `GymnasticsCompetition.Api` (`Program.cs`) in staging or production.
+  - We **never** run `Database.MigrateAsync()` inside `TeamGym.Arena.Api` (`Program.cs`) in staging or production.
   - Instead, the public release workflow ([ADR-0002](0002-repository-strategy.md)) builds a self-contained **EF Core migration bundle** (or publishes the `MigrationService` container image alongside the API image).
-  - During deployment from the private infrastructure repository (#8), the migration job runs to completion **before** the new `GymnasticsCompetition.Api` container revision is rolled out.
+  - During deployment from the private infrastructure repository (#8), the migration job runs to completion **before** the new `TeamGym.Arena.Api` container revision is rolled out.
   - **Backward-compatible (expand-and-contract) migrations:** Schema changes follow an expand-and-contract discipline (additive column/table changes first; destructive drops in a subsequent release) so rolling container updates and rollbacks remain safe.
 
 ### 5. GDPR, Personal Data Minimisation and Retention Policy for Gymnasts
@@ -238,7 +238,7 @@ Because TeamGym gymnasts (particularly in Youth and Junior classes) are frequent
 
 - Good, because local developers still get a one-command startup (`dotnet run --project src/AppHost` runs migrations automatically before the API boots).
 - Good, because in staging and production, migrations run once in a controlled pre-deployment step rather than racing across multiple starting container replicas.
-- Good, because the production `GymnasticsCompetition.Api` runtime identity only needs `SELECT`, `INSERT`, `UPDATE`, `DELETE` permissions rather than schema-altering DDL privileges.
+- Good, because the production `TeamGym.Arena.Api` runtime identity only needs `SELECT`, `INSERT`, `UPDATE`, `DELETE` permissions rather than schema-altering DDL privileges.
 
 #### Option S2: Run `Database.MigrateAsync()` Inside `Program.cs` on Production API Startup
 
@@ -253,8 +253,8 @@ Because TeamGym gymnasts (particularly in Youth and Junior classes) are frequent
 
 ## More Information
 
-- Related issue: [#5](https://github.com/gyback/gymnastics-competition/issues/5)
-- Parent epic: [#9](https://github.com/gyback/gymnastics-competition/issues/9)
+- Related issue: [#5](https://github.com/gyback/teamgym-arena/issues/5)
+- Parent epic: [#9](https://github.com/gyback/teamgym-arena/issues/9)
 - Related ADRs and decisions:
   - [ADR-0001 Record architecture decisions using MADR](0001-record-architecture-decisions.md)
   - [ADR-0002 Repository strategy — public app monorepo, private IaC repo and artefact hand-off](0002-repository-strategy.md)
@@ -262,8 +262,8 @@ Because TeamGym gymnasts (particularly in Youth and Junior classes) are frequent
   - [ADR-0004 Backend runtime and architectural style — .NET 10 modular monolith with vertical slices](0004-backend-runtime-and-architectural-style.md)
   - [ADR-0005 Frontend framework and API contract — React 19 SPA with Vite, ASP.NET Core BFF and OpenAPI TypeScript client](0005-frontend-framework-and-api-contract.md)
   - [ADR-0006 Tenancy and organisation model — shared database with explicit organisation ownership, hierarchy-ready organisations and configurable rule sets](0006-tenancy-and-organisation-model.md)
-  - [#6 Identity, authentication and authorisation](https://github.com/gyback/gymnastics-competition/issues/6) (user identity storage in `users` schema and privacy/data-protection overview)
-  - [#8 Cloud hosting platform and Infrastructure as Code](https://github.com/gyback/gymnastics-competition/issues/8) (provisioning Azure Database for PostgreSQL Flexible Server in `swedencentral` and running the migration bundle job on deploy)
+  - [#6 Identity, authentication and authorisation](https://github.com/gyback/teamgym-arena/issues/6) (user identity storage in `users` schema and privacy/data-protection overview)
+  - [#8 Cloud hosting platform and Infrastructure as Code](https://github.com/gyback/teamgym-arena/issues/8) (provisioning Azure Database for PostgreSQL Flexible Server in `swedencentral` and running the migration bundle job on deploy)
 - Follow-up implementation issues:
-  - [#27 Configure PostgreSQL + EF Core per-module persistence, migration runner and Testcontainers fixture](https://github.com/gyback/gymnastics-competition/issues/27)
-  - [#28 Implement GDPR personal data erasure, anonymisation and retention workflows for gymnast records](https://github.com/gyback/gymnastics-competition/issues/28)
+  - [#27 Configure PostgreSQL + EF Core per-module persistence, migration runner and Testcontainers fixture](https://github.com/gyback/teamgym-arena/issues/27)
+  - [#28 Implement GDPR personal data erasure, anonymisation and retention workflows for gymnast records](https://github.com/gyback/teamgym-arena/issues/28)

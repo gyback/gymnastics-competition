@@ -32,7 +32,7 @@ We need to decide:
 
 ### 1. Frontend Framework, Hosting and BFF Model
 
-- **Option F1:** **React 19 SPA with Vite + TypeScript**, hosted with **`GymnasticsCompetition.Api` acting as the Backend-for-Frontend (BFF)** and serving the compiled static SPA bundle in production (single production runtime and single container image).
+- **Option F1:** **React 19 SPA with Vite + TypeScript**, hosted with **`TeamGym.Arena.Api` acting as the Backend-for-Frontend (BFF)** and serving the compiled static SPA bundle in production (single production runtime and single container image).
 - **Option F2:** **Next.js (App Router)** with React Server Components and a Node.js production server running alongside the `.NET 10` API.
 - **Option F3:** **Blazor (Blazor Web App / WebAssembly)** — keeping both frontend and backend in C#/.NET.
 
@@ -56,7 +56,7 @@ We need to decide:
 
 Chosen options:
 
-1. **Framework & BFF — Option F1:** Build the frontend in `src/Web` as a **React 19 SPA with Vite and strict TypeScript**, with **`GymnasticsCompetition.Api` acting as the same-origin Backend-for-Frontend (BFF)** (handling OIDC login, `HttpOnly` session cookies, and serving the built static assets from a single production container).
+1. **Framework & BFF — Option F1:** Build the frontend in `src/Web` as a **React 19 SPA with Vite and strict TypeScript**, with **`TeamGym.Arena.Api` acting as the same-origin Backend-for-Frontend (BFF)** (handling OIDC login, `HttpOnly` session cookies, and serving the built static assets from a single production container).
 2. **API contract — Option C1:** Use **REST over HTTP with OpenAPI 3.1** emitted at build time by `.NET 10` (`Microsoft.AspNetCore.OpenApi`) and RFC 9457 `ProblemDetails`, paired with **`openapi-typescript` and `openapi-fetch`** and a mandatory CI contract-drift gate.
 3. **Supporting stack — Option S1:** Standardise on **Tailwind CSS + `shadcn/ui` (Radix UI)**, **TanStack Router**, **TanStack Query**, **React Hook Form + Zod**, and **`i18next` (`react-i18next`)** with `sv` and `en` locales from day one.
 4. **SSR & offline stance — Option O1:** **No Node.js SSR runtime** (public competition pages use clean URLs and lightweight OpenGraph metadata served by the ASP.NET Core host where needed); the future live **Competition Runner** uses **TanStack Query persistence + SignalR automatic reconnect** rather than offline multi-writer conflict resolution.
@@ -64,19 +64,19 @@ Chosen options:
 ### 1. Frontend Architecture and the ASP.NET Core BFF Model
 
 - **Single production runtime and container:**
-  - During the container build ([ADR-0002](0002-repository-strategy.md)), a multi-stage `Containerfile` builds the Vite frontend (`npm ci && npm run build` in `src/Web`) and copies the hashed static bundle (`dist/`) into `GymnasticsCompetition.Api`'s `wwwroot/`.
-  - In production, `GymnasticsCompetition.Api` serves the static SPA assets (with immutable long-lived cache headers on hashed bundles) alongside `/api/v1/*` and `/bff/*` on the **exact same origin**. There is no separate Node.js server to run, patch, scale, or pay for in Azure.
+  - During the container build ([ADR-0002](0002-repository-strategy.md)), a multi-stage `Containerfile` builds the Vite frontend (`npm ci && npm run build` in `src/Web`) and copies the hashed static bundle (`dist/`) into `TeamGym.Arena.Api`'s `wwwroot/`.
+  - In production, `TeamGym.Arena.Api` serves the static SPA assets (with immutable long-lived cache headers on hashed bundles) alongside `/api/v1/*` and `/bff/*` on the **exact same origin**. There is no separate Node.js server to run, patch, scale, or pay for in Azure.
 - **Local development with `.NET Aspire`:**
-  - Locally, `dotnet run --project src/AppHost` ([ADR-0004](0004-backend-runtime-and-architectural-style.md)) starts the Vite dev server with instant Hot Module Replacement (HMR) and proxies `/api/*`, `/bff/*`, and `/hubs/*` requests to `GymnasticsCompetition.Api`.
+  - Locally, `dotnet run --project src/AppHost` ([ADR-0004](0004-backend-runtime-and-architectural-style.md)) starts the Vite dev server with instant Hot Module Replacement (HMR) and proxies `/api/*`, `/bff/*`, and `/hubs/*` requests to `TeamGym.Arena.Api`.
 - **Secure authentication via the BFF pattern:**
   - The browser **never** sees or stores OAuth2/OIDC access tokens or refresh tokens.
-  - Authentication flows (`/bff/login`, `/bff/logout`, `/bff/user`) are handled by `GymnasticsCompetition.Api` (detailed further in the identity ADR, #6), which sets an encrypted, `HttpOnly`, `Secure`, `SameSite=Lax` session cookie.
+  - Authentication flows (`/bff/login`, `/bff/logout`, `/bff/user`) are handled by `TeamGym.Arena.Api` (detailed further in the identity ADR, #6), which sets an encrypted, `HttpOnly`, `Secure`, `SameSite=Lax` session cookie.
   - Because the SPA and `/api/v1/*` share the same origin, all API calls automatically include the session cookie with zero CORS configuration and built-in CSRF protection (anti-forgery header / `SameSite` policy).
 
 ### 2. API Contract and TypeScript Client Pipeline
 
 - **Code-first in `.NET 10`, contract-verified in CI:**
-  - Every Minimal API endpoint in `GymnasticsCompetition.Modules.*` declares explicit request/response DTOs and `TypedResults` (`Ok<TResponse>`, `Created<TResponse>`, `ProblemHttpResult`, `ValidationProblem`).
+  - Every Minimal API endpoint in `TeamGym.Arena.Modules.*` declares explicit request/response DTOs and `TypedResults` (`Ok<TResponse>`, `Created<TResponse>`, `ProblemHttpResult`, `ValidationProblem`).
   - `Microsoft.AspNetCore.OpenApi` and `Microsoft.Extensions.ApiDescription.Server` export a deterministic **OpenAPI 3.1** specification (`openapi.json`) at build time without needing a running database container.
 - **Zero-bloat generated TypeScript client (`openapi-typescript` + `openapi-fetch`):**
   - `openapi-typescript` converts `openapi.json` into pure TypeScript type definitions (`src/Web/src/shared/api/schema.d.ts`) with zero runtime JavaScript footprint.
@@ -134,7 +134,7 @@ src/Web/
 
 - **Do any pages need SEO or server rendering?**
   - **No Node.js SSR runtime is needed.** The core MVP workflows (club administration, team registration, competition applications, schedule authoring) are authenticated application workflows where SSR adds operational complexity without benefit.
-  - Public read-only pages (such as a published competition overview or rotation schedule shared via link) use clean, bookmarkable URLs and fast client rendering against cached public GET endpoints. When rich link previews (OpenGraph `<meta>` tags for chat/social sharing) are desired for a competition URL, `GymnasticsCompetition.Api` can inject dynamic `<meta>` tags into `index.html` on initial document request — achieving rich link previews without running Next.js or Node.js in production.
+  - Public read-only pages (such as a published competition overview or rotation schedule shared via link) use clean, bookmarkable URLs and fast client rendering against cached public GET endpoints. When rich link previews (OpenGraph `<meta>` tags for chat/social sharing) are desired for a competition URL, `TeamGym.Arena.Api` can inject dynamic `<meta>` tags into `index.html` on initial document request — achieving rich link previews without running Next.js or Node.js in production.
 - **Will the future Competition Runner need offline support?**
   - **Resilient network handling, not full offline-first multi-writer sync:** On competition day, sports halls can have spotty Wi-Fi/mobile coverage. However, a live TeamGym competition involves multiple concurrent actors (competition director, floor/apparatus marshals, judges across **Floor**, **Tumble** and **Trampet**). True offline multi-writer state synchronisation introduces severe conflict-resolution hazards.
   - Instead, the SPA will use **TanStack Query cache persistence** so coaches and officials can continue viewing the current rotation schedule and start lists on their phones during brief Wi-Fi drops, paired with **ASP.NET Core SignalR automatic reconnection and state reconciliation** when the live **Competition Runner** (`Runner`) and **Score Management** (`Scoring`) modules are introduced ([ADR-0004](0004-backend-runtime-and-architectural-style.md)).
@@ -151,7 +151,7 @@ src/Web/
 ### Confirmation
 
 - `.github/workflows/ci.yml` ([ADR-0003](0003-engineering-workflow-and-quality-gates.md)) enforces on every pull request:
-  - OpenAPI contract regeneration and `git diff --exit-code` verification so `schema.d.ts` never drifts from `GymnasticsCompetition.Api`.
+  - OpenAPI contract regeneration and `git diff --exit-code` verification so `schema.d.ts` never drifts from `TeamGym.Arena.Api`.
   - `tsc --noEmit` (strict TypeScript type-checking), `eslint --max-warnings=0`, and `prettier --check`.
   - Frontend unit and component tests via **Vitest + React Testing Library**, including automated accessibility assertions with **`vitest-axe`**.
   - End-to-end browser tests via **Playwright** (`tests/E2E`) including **`@axe-core/playwright`** WCAG 2.2 AA scans on key user journeys.
@@ -162,7 +162,7 @@ src/Web/
 
 #### Option F1: React 19 SPA with Vite + ASP.NET Core BFF (Single Production Runtime)
 
-- Good, because all server-side business logic, authentication (`HttpOnly` cookies), and API endpoints live in one `.NET 10` process (`GymnasticsCompetition.Api`).
+- Good, because all server-side business logic, authentication (`HttpOnly` cookies), and API endpoints live in one `.NET 10` process (`TeamGym.Arena.Api`).
 - Good, because production deployment requires only a single container image with no Node.js runtime in production.
 - Good, because Vite provides near-instant local dev startup and HMR, and integrates cleanly with `.NET Aspire` (`src/AppHost`).
 - Neutral, because initial page load downloads the SPA bundle (kept small via route-based code splitting in TanStack Router and Vite).
@@ -217,15 +217,15 @@ src/Web/
 
 ## More Information
 
-- Related issue: [#4](https://github.com/gyback/gymnastics-competition/issues/4)
-- Parent epic: [#9](https://github.com/gyback/gymnastics-competition/issues/9)
+- Related issue: [#4](https://github.com/gyback/teamgym-arena/issues/4)
+- Parent epic: [#9](https://github.com/gyback/teamgym-arena/issues/9)
 - Related ADRs and decisions:
   - [ADR-0001 Record architecture decisions using MADR](0001-record-architecture-decisions.md)
   - [ADR-0002 Repository strategy — public app monorepo, private IaC repo and artefact hand-off](0002-repository-strategy.md)
   - [ADR-0003 Engineering workflow and quality gates for agent-assisted development](0003-engineering-workflow-and-quality-gates.md)
   - [ADR-0004 Backend runtime and architectural style — .NET 10 modular monolith with vertical slices](0004-backend-runtime-and-architectural-style.md)
-  - [#6 Identity, authentication and authorisation](https://github.com/gyback/gymnastics-competition/issues/6) (concrete OIDC provider and ASP.NET Core BFF `/bff/*` authentication endpoints)
-  - [#8 Cloud hosting platform and Infrastructure as Code](https://github.com/gyback/gymnastics-competition/issues/8) (hosting the single combined API + SPA container image on Azure)
+  - [#6 Identity, authentication and authorisation](https://github.com/gyback/teamgym-arena/issues/6) (concrete OIDC provider and ASP.NET Core BFF `/bff/*` authentication endpoints)
+  - [#8 Cloud hosting platform and Infrastructure as Code](https://github.com/gyback/teamgym-arena/issues/8) (hosting the single combined API + SPA container image on Azure)
 - Follow-up implementation issues:
-  - [#21 Scaffold React 19 + Vite frontend (`src/Web`) with Tailwind, shadcn/ui, TanStack Router/Query and i18next](https://github.com/gyback/gymnastics-competition/issues/21)
-  - [#22 Add OpenAPI 3.1 build-time export and TypeScript client generation (`openapi-typescript` + `openapi-fetch`) in CI](https://github.com/gyback/gymnastics-competition/issues/22)
+  - [#21 Scaffold React 19 + Vite frontend (`src/Web`) with Tailwind, shadcn/ui, TanStack Router/Query and i18next](https://github.com/gyback/teamgym-arena/issues/21)
+  - [#22 Add OpenAPI 3.1 build-time export and TypeScript client generation (`openapi-typescript` + `openapi-fetch`) in CI](https://github.com/gyback/teamgym-arena/issues/22)
