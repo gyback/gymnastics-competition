@@ -83,7 +83,7 @@ The glossary will evolve into the project's ubiquitous language and should be ke
 Final choices are made through ADRs, but the starting preference is:
 
 - **Backend:** .NET 10 (ASP.NET Core Minimal APIs, modular monolith with vertical slices — [ADR-0004](docs/adr/0004-backend-runtime-and-architectural-style.md))
-- **Frontend:** React, possibly via Next.js
+- **Frontend:** React 19 SPA with Vite, TypeScript, Tailwind CSS & `shadcn/ui`, served by the ASP.NET Core BFF with an OpenAPI 3.1 generated client ([ADR-0005](docs/adr/0005-frontend-framework-and-api-contract.md))
 - **Hosting:** Microsoft Azure
 - **Source control, issues and CI/CD:** GitHub (Issues, Pull Requests, Actions)
 
@@ -106,7 +106,7 @@ src/                      Production source code: .NET 10 backend modules + Web 
 tests/                    Unit, integration, architecture and E2E test projects (planned)
 ```
 
-Concrete `.NET` backend modules (`Users`, `Organisations`, `Competitions`, `Applications`, `Scheduling`), local `.NET Aspire` orchestration, and test projects are defined in [ADR-0004](docs/adr/0004-backend-runtime-and-architectural-style.md); frontend projects inside `src/Web/` will be defined by the frontend ADR.
+Concrete `.NET` backend modules (`Users`, `Organisations`, `Competitions`, `Applications`, `Scheduling`), local `.NET Aspire` orchestration, and test projects are defined in [ADR-0004](docs/adr/0004-backend-runtime-and-architectural-style.md); the React 19 + Vite frontend structure inside `src/Web/` and OpenAPI client pipeline are defined in [ADR-0005](docs/adr/0005-frontend-framework-and-api-contract.md).
 
 ## Architecture decisions
 
