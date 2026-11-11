@@ -1,11 +1,11 @@
-# Gymnastics Competition
+# TeamGym Arena
 
 An open-source administration tool for **[TeamGym](https://www.europeangymnastics.com/discipline/teamgym/intro)**
 competitions — covering the three disciplines **Floor**, **Tumble** and **Trampet**.
 
 > **Status: pre-alpha — decision phase.** No application code exists yet. We are currently recording the
 > foundational architecture decisions (see [Architecture decisions](#architecture-decisions)). Watch the
-> repository or check the [open issues](https://github.com/gyback/gymnastics-competition/issues) to follow along.
+> repository or check the [open issues](https://github.com/gyback/teamgym-arena/issues) to follow along.
 
 ---
 
@@ -136,7 +136,7 @@ trustworthy:
 Contributions are very welcome — especially from people who run, judge or compete in TeamGym.
 Right now the most valuable contributions are:
 
-- Commenting on the open [ADR issues](https://github.com/gyback/gymnastics-competition/issues?q=is%3Aissue+is%3Aopen+label%3Aadr)
+- Commenting on the open [ADR issues](https://github.com/gyback/teamgym-arena/issues?q=is%3Aissue+is%3Aopen+label%3Aadr)
   with requirements, experience or alternatives.
 - Describing how TeamGym competitions are run in your club, region or country (rules, sections, classes, schedules).
 

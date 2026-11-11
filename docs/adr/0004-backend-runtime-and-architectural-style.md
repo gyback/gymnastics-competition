@@ -32,7 +32,7 @@ The backend for the [TeamGym](https://www.europeangymnastics.com/discipline/team
 
 ### 2. Macro Architectural Style
 
-- **Option A1:** **Modular Monolith** — Single deployable ASP.NET Core host (`GymnasticsCompetition.Api`) composed of isolated per-bounded-context modules (`Users`, `Organisations`, `Competitions`, `Applications`, `Scheduling`), with strict compile-time and architecture-test boundaries.
+- **Option A1:** **Modular Monolith** — Single deployable ASP.NET Core host (`TeamGym.Arena.Api`) composed of isolated per-bounded-context modules (`Users`, `Organisations`, `Competitions`, `Applications`, `Scheduling`), with strict compile-time and architecture-test boundaries.
 - **Option A2:** **Traditional Layered / Clean Architecture Monolith** — Single solution-wide `Domain`, `Application`, `Infrastructure`, and `Api` project quadruplet shared across all business areas.
 - **Option A3:** **Microservices** — Separate deployable services and databases per bounded context communicating over HTTP/gRPC and an external message broker from day one.
 
@@ -63,7 +63,7 @@ Chosen options:
 
 ### 2. Modular Monolith Bounded Contexts
 
-The system runs as a single ASP.NET Core process (`GymnasticsCompetition.Api`) that registers independent modules.
+The system runs as a single ASP.NET Core process (`TeamGym.Arena.Api`) that registers independent modules.
 
 #### Initial MVP Modules
 
@@ -84,7 +84,7 @@ The system runs as a single ASP.NET Core process (`GymnasticsCompetition.Api`) t
 
 #### Shared Kernel (`Common`)
 
-- `GymnasticsCompetition.Common` is kept deliberately small and free of business workflows. It contains only foundational building blocks shared by all modules:
+- `TeamGym.Arena.Common` is kept deliberately small and free of business workflows. It contains only foundational building blocks shared by all modules:
   - Ubiquitous TeamGym primitive types (`Discipline`: `Floor`, `Tumble`, `Trampet`; `Section`: `Women`, `Men`, `Mixed`, `Open`).
   - Strongly-typed entity ID primitives, `Result<T>` / `Error` types for explicit domain failure handling without exceptions for control flow, `TimeProvider` helpers, and in-process domain/integration event abstractions.
 
@@ -101,20 +101,20 @@ Expanding on [ADR-0002](0002-repository-strategy.md), the `.NET` projects under 
 │   ├── Common/                                       # Shared kernel (Result, DomainEvent, Discipline, Section, etc.)
 │   ├── Modules/
 │   │   ├── Users/
-│   │   │   ├── GymnasticsCompetition.Modules.Users/
-│   │   │   └── GymnasticsCompetition.Modules.Users.Contracts/
+│   │   │   ├── TeamGym.Arena.Modules.Users/
+│   │   │   └── TeamGym.Arena.Modules.Users.Contracts/
 │   │   ├── Organisations/
-│   │   │   ├── GymnasticsCompetition.Modules.Organisations/
-│   │   │   └── GymnasticsCompetition.Modules.Organisations.Contracts/
+│   │   │   ├── TeamGym.Arena.Modules.Organisations/
+│   │   │   └── TeamGym.Arena.Modules.Organisations.Contracts/
 │   │   ├── Competitions/
-│   │   │   ├── GymnasticsCompetition.Modules.Competitions/
-│   │   │   └── GymnasticsCompetition.Modules.Competitions.Contracts/
+│   │   │   ├── TeamGym.Arena.Modules.Competitions/
+│   │   │   └── TeamGym.Arena.Modules.Competitions.Contracts/
 │   │   ├── Applications/
-│   │   │   ├── GymnasticsCompetition.Modules.Applications/
-│   │   │   └── GymnasticsCompetition.Modules.Applications.Contracts/
+│   │   │   ├── TeamGym.Arena.Modules.Applications/
+│   │   │   └── TeamGym.Arena.Modules.Applications.Contracts/
 │   │   └── Scheduling/
-│   │       ├── GymnasticsCompetition.Modules.Scheduling/
-│   │       └── GymnasticsCompetition.Modules.Scheduling.Contracts/
+│   │       ├── TeamGym.Arena.Modules.Scheduling/
+│   │       └── TeamGym.Arena.Modules.Scheduling.Contracts/
 │   └── Web/                                          # Frontend web application (see ADR #4)
 └── tests/
     ├── ArchitectureTests/                            # ArchUnitNET rules enforcing module & layer boundaries
@@ -127,14 +127,14 @@ Expanding on [ADR-0002](0002-repository-strategy.md), the `.NET` projects under 
         └── Scheduling.UnitTests/
 ```
 
-- **One implementation assembly + one optional `.Contracts` assembly per module:** Unlike Clean Architecture templates that multiply every module into 4 separate `.csproj` files (which would create 20+ projects for the MVP alone), each module is **one implementation project** (`GymnasticsCompetition.Modules.<Module>`) with internal visibility by default, plus a lightweight **`<Module>.Contracts`** project containing only public DTOs, integration events, and query/facade interfaces needed by other modules.
+- **One implementation assembly + one optional `.Contracts` assembly per module:** Unlike Clean Architecture templates that multiply every module into 4 separate `.csproj` files (which would create 20+ projects for the MVP alone), each module is **one implementation project** (`TeamGym.Arena.Modules.<Module>`) with internal visibility by default, plus a lightweight **`<Module>.Contracts`** project containing only public DTOs, integration events, and query/facade interfaces needed by other modules.
 
 ### 4. Code Organisation Within Each Module (Vertical Slices + Rich Domain Model)
 
-Inside each module project (`GymnasticsCompetition.Modules.<Module>`), code is organised around **domain concepts** and **vertical feature slices**:
+Inside each module project (`TeamGym.Arena.Modules.<Module>`), code is organised around **domain concepts** and **vertical feature slices**:
 
 ```text
-GymnasticsCompetition.Modules.Scheduling/
+TeamGym.Arena.Modules.Scheduling/
 ├── Domain/                           # Pure C# domain model (zero EF Core, HTTP, or infrastructure references)
 │   ├── Schedules/
 │   │   ├── CompetitionSchedule.cs    # Aggregate root & rotation invariants
@@ -176,11 +176,11 @@ GymnasticsCompetition.Modules.Scheduling/
   - **Synchronous cross-module reads** (e.g. `Scheduling` fetching accepted team applications from `Applications` and competition discipline/section config from `Competitions`) go through explicit public interfaces in `<Module>.Contracts` implemented by the owning module.
   - **Cross-module side effects** (e.g. notifying `Scheduling` when an accepted team withdraws in `Applications`) are published via an in-process integration event dispatcher defined in `Common`.
 - **Local orchestration with `.NET Aspire`:**
-  - `src/AppHost` (.NET Aspire) orchestrates local development: a single `dotnet run --project src/AppHost` starts the PostgreSQL container, runs database migrations, boots `GymnasticsCompetition.Api`, starts the frontend dev server, and provides the local Aspire Dashboard for structured logs, distributed traces, and metrics.
-  - `src/ServiceDefaults` wires standard OpenTelemetry, health check endpoints (`/health`, `/alive`), and HTTP resilience policies into `GymnasticsCompetition.Api` while keeping the production container image completely standard and portable ([ADR-0002](0002-repository-strategy.md)).
+  - `src/AppHost` (.NET Aspire) orchestrates local development: a single `dotnet run --project src/AppHost` starts the PostgreSQL container, runs database migrations, boots `TeamGym.Arena.Api`, starts the frontend dev server, and provides the local Aspire Dashboard for structured logs, distributed traces, and metrics.
+  - `src/ServiceDefaults` wires standard OpenTelemetry, health check endpoints (`/health`, `/alive`), and HTTP resilience policies into `TeamGym.Arena.Api` while keeping the production container image completely standard and portable ([ADR-0002](0002-repository-strategy.md)).
 - **Real-time communication (SignalR):**
   - **Not required for the MVP:** User, team, competition, application, and schedule authoring workflows are standard HTTP request/response interactions.
-  - **Ready for the future Competition Runner:** When the live **Competition Runner** (`Runner`) and **Score Management** (`Scoring`) modules are built, ASP.NET Core **SignalR** hubs will be mapped inside those modules in the same `GymnasticsCompetition.Api` host, broadcasting live rotation progressions and scores without architectural rework.
+  - **Ready for the future Competition Runner:** When the live **Competition Runner** (`Runner`) and **Score Management** (`Scoring`) modules are built, ASP.NET Core **SignalR** hubs will be mapped inside those modules in the same `TeamGym.Arena.Api` host, broadcasting live rotation progressions and scores without architectural rework.
 
 ### Consequences
 
@@ -194,9 +194,9 @@ GymnasticsCompetition.Modules.Scheduling/
 ### Confirmation
 
 - `tests/ArchitectureTests` runs on every pull request in CI ([ADR-0003](0003-engineering-workflow-and-quality-gates.md)) and fails the build if:
-  - any `GymnasticsCompetition.Modules.<Module>` assembly references another module's implementation assembly (only `<OtherModule>.Contracts` and `GymnasticsCompetition.Common` are permitted),
+  - any `TeamGym.Arena.Modules.<Module>` assembly references another module's implementation assembly (only `<OtherModule>.Contracts` and `TeamGym.Arena.Common` are permitted),
   - any class in a `.Domain` namespace references `Microsoft.EntityFrameworkCore`, `Microsoft.AspNetCore.*`, or infrastructure packages,
-  - any module assembly references `GymnasticsCompetition.Api`, or
+  - any module assembly references `TeamGym.Arena.Api`, or
   - domain, feature handler, or `DbContext` types inside a module implementation assembly are declared `public`.
 - `dotnet run --project src/AppHost` boots the complete local environment from a fresh clone with Docker running.
 
@@ -267,18 +267,18 @@ GymnasticsCompetition.Modules.Scheduling/
 
 ## More Information
 
-- Related issue: [#3](https://github.com/gyback/gymnastics-competition/issues/3)
-- Parent epic: [#9](https://github.com/gyback/gymnastics-competition/issues/9)
+- Related issue: [#3](https://github.com/gyback/teamgym-arena/issues/3)
+- Parent epic: [#9](https://github.com/gyback/teamgym-arena/issues/9)
 - Related ADRs and decisions:
   - [ADR-0001 Record architecture decisions using MADR](0001-record-architecture-decisions.md)
   - [ADR-0002 Repository strategy — public app monorepo, private IaC repo and artefact hand-off](0002-repository-strategy.md)
   - [ADR-0003 Engineering workflow and quality gates for agent-assisted development](0003-engineering-workflow-and-quality-gates.md)
-  - [#4 Frontend framework and API contract](https://github.com/gyback/gymnastics-competition/issues/4) (consumes the OpenAPI specification generated by `GymnasticsCompetition.Api`)
-  - [#5 Primary data store and data access](https://github.com/gyback/gymnastics-competition/issues/5) (PostgreSQL, EF Core per-module schemas and migrations)
-  - [#6 Identity, authentication and authorisation](https://github.com/gyback/gymnastics-competition/issues/6) (authentication and resource-scoped authorisation policies in `Api` and `Users`)
-  - [#7 Tenancy and organisation model](https://github.com/gyback/gymnastics-competition/issues/7) (domain modelling for organisations, clubs, and multi-club roles)
-  - [#8 Cloud hosting platform and Infrastructure as Code](https://github.com/gyback/gymnastics-competition/issues/8) (hosting the modular monolith container image on Azure)
+  - [#4 Frontend framework and API contract](https://github.com/gyback/teamgym-arena/issues/4) (consumes the OpenAPI specification generated by `TeamGym.Arena.Api`)
+  - [#5 Primary data store and data access](https://github.com/gyback/teamgym-arena/issues/5) (PostgreSQL, EF Core per-module schemas and migrations)
+  - [#6 Identity, authentication and authorisation](https://github.com/gyback/teamgym-arena/issues/6) (authentication and resource-scoped authorisation policies in `Api` and `Users`)
+  - [#7 Tenancy and organisation model](https://github.com/gyback/teamgym-arena/issues/7) (domain modelling for organisations, clubs, and multi-club roles)
+  - [#8 Cloud hosting platform and Infrastructure as Code](https://github.com/gyback/teamgym-arena/issues/8) (hosting the modular monolith container image on Azure)
 - Follow-up implementation issues:
-  - [#11 Scaffold monorepo folder structure and root .NET configuration](https://github.com/gyback/gymnastics-competition/issues/11)
-  - [#18 Scaffold .NET 10 modular monolith host, Aspire orchestration and MVP module projects](https://github.com/gyback/gymnastics-competition/issues/18)
-  - [#19 Add architecture test suite (`tests/ArchitectureTests`) to enforce module boundaries](https://github.com/gyback/gymnastics-competition/issues/19)
+  - [#11 Scaffold monorepo folder structure and root .NET configuration](https://github.com/gyback/teamgym-arena/issues/11)
+  - [#18 Scaffold .NET 10 modular monolith host, Aspire orchestration and MVP module projects](https://github.com/gyback/teamgym-arena/issues/18)
+  - [#19 Add architecture test suite (`tests/ArchitectureTests`) to enforce module boundaries](https://github.com/gyback/teamgym-arena/issues/19)

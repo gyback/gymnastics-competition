@@ -16,4 +16,4 @@ to `NNNN-title-with-dashes.md` in a pull request.
 | [0006](0006-tenancy-and-organisation-model.md) | Tenancy and organisation model — shared database with explicit organisation ownership, hierarchy-ready organisations and configurable rule sets | Accepted |
 | [0007](0007-primary-data-store-and-data-access.md) | Primary data store and data access — PostgreSQL with EF Core 10, per-module schemas, migration bundles and GDPR retention policies | Accepted |
 
-Open decisions are tracked as [issues labelled `adr`](https://github.com/gyback/gymnastics-competition/issues?q=is%3Aissue+label%3Aadr).
+Open decisions are tracked as [issues labelled `adr`](https://github.com/gyback/teamgym-arena/issues?q=is%3Aissue+label%3Aadr).

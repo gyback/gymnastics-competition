@@ -88,7 +88,7 @@ In TeamGym, data isolation is governed by **explicit resource ownership and rela
 
 ### 2. Hierarchy-Ready `Organisation` Domain Model
 
-Inside `GymnasticsCompetition.Modules.Organisations` ([ADR-0004](0004-backend-runtime-and-architectural-style.md)), clubs, regions, and federations share a single aggregate root:
+Inside `TeamGym.Arena.Modules.Organisations` ([ADR-0004](0004-backend-runtime-and-architectural-style.md)), clubs, regions, and federations share a single aggregate root:
 
 ```text
 Organisation
@@ -121,7 +121,7 @@ OrganisationMembership
 └── JoinedAtUtc: DateTimeOffset
 ```
 
-- A `User` (`GymnasticsCompetition.Modules.Users`) has a **many-to-many** relationship with `Organisation` via `OrganisationMembership`.
+- A `User` (`TeamGym.Arena.Modules.Users`) has a **many-to-many** relationship with `Organisation` via `OrganisationMembership`.
 - In the React SPA (`src/Web`, [ADR-0005](0005-frontend-framework-and-api-contract.md)), users who belong to more than one organisation get a lightweight **organisation switcher** in the navigation header, while routes and API endpoints carry the explicit `organisationId` (e.g. `/api/v1/organisations/{organisationId}/teams`) so URLs are bookmarkable, unambiguous, and safe across multiple open browser tabs.
 
 ### 4. Configurable TeamGym `RuleSet` Model
@@ -252,16 +252,16 @@ Rather than hardcoding constants or locking an entire deployment to one federati
 
 ## More Information
 
-- Related issue: [#7](https://github.com/gyback/gymnastics-competition/issues/7)
-- Parent epic: [#9](https://github.com/gyback/gymnastics-competition/issues/9)
+- Related issue: [#7](https://github.com/gyback/teamgym-arena/issues/7)
+- Parent epic: [#9](https://github.com/gyback/teamgym-arena/issues/9)
 - Related ADRs and decisions:
   - [ADR-0001 Record architecture decisions using MADR](0001-record-architecture-decisions.md)
   - [ADR-0002 Repository strategy — public app monorepo, private IaC repo and artefact hand-off](0002-repository-strategy.md)
   - [ADR-0003 Engineering workflow and quality gates for agent-assisted development](0003-engineering-workflow-and-quality-gates.md)
   - [ADR-0004 Backend runtime and architectural style — .NET 10 modular monolith with vertical slices](0004-backend-runtime-and-architectural-style.md)
   - [ADR-0005 Frontend framework and API contract — React 19 SPA with Vite, ASP.NET Core BFF and OpenAPI TypeScript client](0005-frontend-framework-and-api-contract.md)
-  - [#5 Primary data store and data access](https://github.com/gyback/gymnastics-competition/issues/5) (shared PostgreSQL database with per-module schemas)
-  - [#6 Identity, authentication and authorisation](https://github.com/gyback/gymnastics-competition/issues/6) (ASP.NET Core resource-scoped authorisation policies evaluating `OrganisationMembership` and competition ownership)
+  - [#5 Primary data store and data access](https://github.com/gyback/teamgym-arena/issues/5) (shared PostgreSQL database with per-module schemas)
+  - [#6 Identity, authentication and authorisation](https://github.com/gyback/teamgym-arena/issues/6) (ASP.NET Core resource-scoped authorisation policies evaluating `OrganisationMembership` and competition ownership)
 - Follow-up implementation issues:
-  - [#24 Implement initial `Organisations` domain model (`Organisation`, `OrganisationMembership`, `Gymnast`, `Team`)](https://github.com/gyback/gymnastics-competition/issues/24)
-  - [#25 Implement configurable TeamGym `RuleSet` model, federation presets and cross-organisation visibility rules](https://github.com/gyback/gymnastics-competition/issues/25)
+  - [#24 Implement initial `Organisations` domain model (`Organisation`, `OrganisationMembership`, `Gymnast`, `Team`)](https://github.com/gyback/teamgym-arena/issues/24)
+  - [#25 Implement configurable TeamGym `RuleSet` model, federation presets and cross-organisation visibility rules](https://github.com/gyback/teamgym-arena/issues/25)

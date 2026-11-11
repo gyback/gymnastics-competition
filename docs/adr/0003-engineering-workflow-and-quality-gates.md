@@ -237,14 +237,14 @@ Every pull request triggers `.github/workflows/ci.yml` on GitHub Actions. No PR 
 
 ## More Information
 
-- Related issue: [#2](https://github.com/gyback/gymnastics-competition/issues/2)
-- Parent epic: [#9](https://github.com/gyback/gymnastics-competition/issues/9)
+- Related issue: [#2](https://github.com/gyback/teamgym-arena/issues/2)
+- Parent epic: [#9](https://github.com/gyback/teamgym-arena/issues/9)
 - Related ADRs and decisions:
   - [ADR-0001 Record architecture decisions using MADR](0001-record-architecture-decisions.md)
   - [ADR-0002 Repository strategy — public app monorepo, private IaC repo and artefact hand-off](0002-repository-strategy.md)
-  - [#3 Backend runtime and architectural style](https://github.com/gyback/gymnastics-competition/issues/3)
-  - [#4 Frontend framework and API contract](https://github.com/gyback/gymnastics-competition/issues/4)
+  - [#3 Backend runtime and architectural style](https://github.com/gyback/teamgym-arena/issues/3)
+  - [#4 Frontend framework and API contract](https://github.com/gyback/teamgym-arena/issues/4)
 - Follow-up implementation issues:
-  - [#14 Add `AGENTS.md`, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md` and PR template](https://github.com/gyback/gymnastics-competition/issues/14)
-  - [#15 Configure `main` branch protection ruleset, Dependabot and CodeQL security scanning](https://github.com/gyback/gymnastics-competition/issues/15)
-  - [#16 Add GitHub Actions CI workflow for PR validation, quality gates and tests](https://github.com/gyback/gymnastics-competition/issues/16)
+  - [#14 Add `AGENTS.md`, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md` and PR template](https://github.com/gyback/teamgym-arena/issues/14)
+  - [#15 Configure `main` branch protection ruleset, Dependabot and CodeQL security scanning](https://github.com/gyback/teamgym-arena/issues/15)
+  - [#16 Add GitHub Actions CI workflow for PR validation, quality gates and tests](https://github.com/gyback/teamgym-arena/issues/16)

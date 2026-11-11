@@ -45,7 +45,7 @@ Chosen options:
 
 ### 1. Hand-off and Versioning Mechanics
 
-- **Public artefact publishing:** GitHub Actions in this repository builds, tests and packages the application into OCI container images (and any companion artefacts such as database migration bundles) and pushes them to GitHub Container Registry (`ghcr.io/gyback/gymnastics-competition/...`).
+- **Public artefact publishing:** GitHub Actions in this repository builds, tests and packages the application into OCI container images (and any companion artefacts such as database migration bundles) and pushes them to GitHub Container Registry (`ghcr.io/gyback/teamgym-arena/...`).
 - **Versioning scheme:** Semantic Versioning (`vMAJOR.MINOR.PATCH`) driven by [Conventional Commits](https://www.conventionalcommits.org/) (to be detailed further in the engineering workflow ADR, #2). Every release tag produces an immutable image tagged with both the SemVer version and the git commit SHA, plus an attested image digest (`@sha256:...`) and auto-generated release notes.
 - **Deployment trigger:** Publishing a release in this public repository does **not** directly mutate production infrastructure. Instead, deployments are triggered by updating the pinned image version/digest in the private infrastructure repository via a pull request (either opened automatically by a release bot / repository dispatch workflow or via Renovate/Dependabot, and promoted across environments in the private repo). This keeps environment promotion, infrastructure changes and rollbacks audited in one place without granting the public repo credentials to the cloud environment.
 
@@ -64,7 +64,7 @@ The public repository uses a single, predictable monorepo layout:
 ├── tests/                    # Automated test projects (unit, integration, architecture, end-to-end)
 ├── Directory.Build.props     # Shared MSBuild properties (target framework, nullable, analysers)
 ├── Directory.Packages.props  # Central Package Management (CPM) for NuGet dependencies
-└── GymnasticsCompetition.slnx # Root .NET solution
+└── TeamGym.Arena.slnx        # Root .NET solution
 ```
 
 - **Local development:** Local orchestration (such as .NET Aspire AppHost or Docker Compose for local backing services like PostgreSQL) lives inside this repository under `src/` so that a fresh clone can be started with a single command. The exact local orchestrator and project names will be finalised in the backend architecture ADR (#3) and data store ADR (#5).
@@ -120,13 +120,13 @@ The public repository uses a single, predictable monorepo layout:
 
 ## More Information
 
-- Related issue: [#1](https://github.com/gyback/gymnastics-competition/issues/1)
-- Parent epic: [#9](https://github.com/gyback/gymnastics-competition/issues/9)
+- Related issue: [#1](https://github.com/gyback/teamgym-arena/issues/1)
+- Parent epic: [#9](https://github.com/gyback/teamgym-arena/issues/9)
 - Related decisions:
-  - [#2 Engineering workflow and quality gates](https://github.com/gyback/gymnastics-competition/issues/2) (Conventional Commits, CI checks, release automation)
-  - [#3 Backend runtime and architectural style](https://github.com/gyback/gymnastics-competition/issues/3) (concrete `.NET` projects under `src/` and `tests/`, local orchestration)
-  - [#4 Frontend framework and API contract](https://github.com/gyback/gymnastics-competition/issues/4) (frontend project structure under `src/Web/`)
-  - [#8 Cloud hosting platform and Infrastructure as Code](https://github.com/gyback/gymnastics-competition/issues/8) (deployment contract between the container image and Azure hosting)
+  - [#2 Engineering workflow and quality gates](https://github.com/gyback/teamgym-arena/issues/2) (Conventional Commits, CI checks, release automation)
+  - [#3 Backend runtime and architectural style](https://github.com/gyback/teamgym-arena/issues/3) (concrete `.NET` projects under `src/` and `tests/`, local orchestration)
+  - [#4 Frontend framework and API contract](https://github.com/gyback/teamgym-arena/issues/4) (frontend project structure under `src/Web/`)
+  - [#8 Cloud hosting platform and Infrastructure as Code](https://github.com/gyback/teamgym-arena/issues/8) (deployment contract between the container image and Azure hosting)
 - Follow-up implementation issues:
-  - [#11 Scaffold monorepo folder structure and root .NET configuration](https://github.com/gyback/gymnastics-competition/issues/11)
-  - [#12 Add release workflow to publish versioned container images to GHCR](https://github.com/gyback/gymnastics-competition/issues/12)
+  - [#11 Scaffold monorepo folder structure and root .NET configuration](https://github.com/gyback/teamgym-arena/issues/11)
+  - [#12 Add release workflow to publish versioned container images to GHCR](https://github.com/gyback/teamgym-arena/issues/12)

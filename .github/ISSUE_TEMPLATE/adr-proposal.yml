@@ -7,7 +7,7 @@ body:
     attributes:
       value: |
         Use this form for decisions that are hard to reverse or affect several parts of the system.
-        See [ADR-0001](https://github.com/gyback/gymnastics-competition/blob/main/docs/adr/0001-record-architecture-decisions.md) for the process.
+        See [ADR-0001](https://github.com/gyback/teamgym-arena/blob/main/docs/adr/0001-record-architecture-decisions.md) for the process.
   - type: textarea
     id: context
     attributes:
