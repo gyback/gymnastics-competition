@@ -86,7 +86,7 @@ Final choices are made through ADRs, but the starting preference is:
 - **Frontend:** React 19 SPA with Vite, TypeScript, Tailwind CSS & `shadcn/ui`, served by the ASP.NET Core BFF with an OpenAPI 3.1 generated client ([ADR-0005](docs/adr/0005-frontend-framework-and-api-contract.md))
 - **Data store:** PostgreSQL 17 (Azure Database for PostgreSQL Flexible Server) with EF Core 10 (`Npgsql`) and per-module schemas ([ADR-0007](docs/adr/0007-primary-data-store-and-data-access.md))
 - **Identity:** Microsoft Entra External ID via OIDC, cookie-based ASP.NET Core BFF and resource-scoped permission policies ([ADR-0008](docs/adr/0008-identity-authentication-and-authorisation.md))
-- **Hosting:** Microsoft Azure
+- **Hosting:** Microsoft Azure — Azure Container Apps in Sweden Central, provisioned with Bicep from a private IaC repository, behind a portable container deployment contract ([ADR-0009](docs/adr/0009-cloud-hosting-and-infrastructure-as-code.md))
 - **Source control, issues and CI/CD:** GitHub (Issues, Pull Requests, Actions)
 
 ## Repository layout
