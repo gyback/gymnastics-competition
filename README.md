@@ -100,6 +100,7 @@ and run the application locally from this repository alone.
 ```text
 .github/
   ISSUE_TEMPLATE/         Issue forms (including ADR proposals)
+  PULL_REQUEST_TEMPLATE.md
   workflows/              CI and release workflows (planned)
 build/                    Shared build / container helpers (planned)
 docs/
@@ -128,7 +129,7 @@ Much of the code in this project is written with the help of AI coding agents ([
 trustworthy:
 
 - Every change goes through a short-lived branch and pull request (`main` is protected, squash-merged, and uses [Conventional Commits](https://www.conventionalcommits.org/)) and is reviewed by a human before merging.
-- Agents follow explicit repository instructions (`AGENTS.md`) and work from issues and ADRs; if a decision isn't recorded, it is raised as an issue rather than made silently in code.
+- Agents follow explicit repository instructions ([`AGENTS.md`](AGENTS.md)) and work from issues and ADRs; if a decision isn't recorded, it is raised as an issue rather than made silently in code.
 - Changes must be covered by automated tests (unit, integration, architecture and E2E) and pass CI quality and security gates.
 - Pull requests should be small and focused enough to review in one sitting.
 
@@ -141,7 +142,8 @@ Right now the most valuable contributions are:
   with requirements, experience or alternatives.
 - Describing how TeamGym competitions are run in your club, region or country (rules, sections, classes, schedules).
 
-A `CONTRIBUTING.md` and code of conduct will be added as the project takes shape.
+See [`CONTRIBUTING.md`](CONTRIBUTING.md) for the workflow, and the [Code of Conduct](CODE_OF_CONDUCT.md)
+that applies to everyone taking part.
 
 ## License
 
